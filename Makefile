@@ -1,7 +1,8 @@
 GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
-
+CONFIG_pb=./internal/conf/conf.proto
+api_proto_files=./api/user/v1/*.proto
 ifeq ($(GOHOSTOS), windows)
 	#the `find.exe` is different from `find` in bash/shell.
 	#to see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/find.
@@ -31,7 +32,16 @@ config:
 	protoc --proto_path=./internal \
 	       --proto_path=./third_party \
  	       --go_out=paths=source_relative:./internal \
-	       $(INTERNAL_PROTO_FILES)
+	       $(CONFIG_pb)
+
+.PHONY: errors
+# generate internal proto
+config:
+	protoc --proto_path=. \
+             --proto_path=./third_party \
+             --go_out=paths=source_relative:. \
+             --go-errors_out=paths=source_relative:. \
+             $(API_PROTO_FILES)
 
 .PHONY: api
 # generate api proto
@@ -42,7 +52,7 @@ api:
  	       --go-http_out=paths=source_relative:./api \
  	       --go-grpc_out=paths=source_relative:./api \
 	       --openapi_out=fq_schema_naming=true,default_response=false:. \
-	       $(API_PROTO_FILES)
+	       $(api_proto_files)
 
 .PHONY: build
 # build
@@ -54,6 +64,11 @@ build:
 generate:
 	go generate ./...
 	go mod tidy
+
+
+.PHONY: gen-gorm
+gen-gorm:
+	gentool -c "./configs/gen.yaml"
 
 .PHONY: all
 # generate all

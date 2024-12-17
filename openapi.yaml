@@ -3,37 +3,67 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
-    description: The greeting service definition.
+    title: User API
     version: 0.0.1
 paths:
-    /helloworld/{name}:
+    /user/getAllUser:
         get:
             tags:
-                - Greeter
-                - subgroup
-            description: Sends a greeting
-            operationId: Greeter_SayHello
-            parameters:
-                - name: name
-                  in: path
-                  required: true
-                  schema:
-                    type: string
+                - User
+            operationId: User_GetAllUser
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+                                $ref: '#/components/schemas/user.v1.GetAllUserReply'
+    /user/register:
+        post:
+            tags:
+                - User
+            description: Handles user registration
+            operationId: User_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.RegisterReply'
 components:
     schemas:
-        helloworld.v1.HelloReply:
+        user.v1.GetAllUserReply:
+            type: object
+            properties:
+                user:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/user.v1.User_info'
+        user.v1.RegisterReply:
             type: object
             properties:
                 message:
                     type: string
-            description: The response message containing the greetings
+        user.v1.RegisterRequest:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/user.v1.User_info'
+        user.v1.User_info:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+                email:
+                    type: string
 tags:
-    - name: Greeter
+    - name: User
