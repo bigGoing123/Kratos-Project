@@ -7,18 +7,37 @@ import (
 	"github.com/jinzhu/copier"
 	v1 "kratosTestApp/api/user/v1"
 	"kratosTestApp/internal/biz"
+	"kratosTestApp/internal/conf"
 	"kratosTestApp/internal/data/model"
 )
 
 type userRepo struct {
-	data *Data
-	log  *log.Helper
+	data     *Data
+	log      *log.Helper
+	authConf *conf.Auth
 }
 
-func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
+func (r *userRepo) FindByUsername(ctx context.Context, user *model.User) (*model.User, error) {
+	db := r.data.UserDb.Debug()
+	var existingUser *model.User
+	if user.Username != "" {
+		db = db.Where("username = ?", user.Username)
+	}
+	if user.Username == "" && user.Email != "" { //没有用户名，有邮箱才能查找
+		db.Where("email = ?", user.Email)
+	}
+	rowsAffected := db.Find(&existingUser).RowsAffected
+	if rowsAffected == 0 {
+		return nil, errors.New(401, "User does not exist", "User does not exist")
+	}
+	return existingUser, nil
+}
+
+func NewUserRepo(data *Data, logger log.Logger, auth *conf.Auth) biz.UserRepo {
 	return &userRepo{
-		data: data,
-		log:  log.NewHelper(logger),
+		data:     data,
+		log:      log.NewHelper(logger),
+		authConf: auth,
 	}
 }
 func (r *userRepo) GetAllUser(ctx context.Context, in *v1.NullRequest) (*v1.GetAllUserReply, error) {
@@ -34,7 +53,7 @@ func (r *userRepo) GetAllUser(ctx context.Context, in *v1.NullRequest) (*v1.GetA
 	return reply, nil
 }
 
-func (r *userRepo) CreateUser(ctx context.Context, user *model.User) (*v1.RegisterReply, error) {
+func (r *userRepo) CreateUser(ctx context.Context, user *model.User) (*v1.NullReply, error) {
 	db := r.data.UserDb
 	// Check if user already exists
 	var existingUser model.User
@@ -52,6 +71,6 @@ func (r *userRepo) CreateUser(ctx context.Context, user *model.User) (*v1.Regist
 	if err != nil {
 		return nil, err
 	}
-	return &v1.RegisterReply{Message: "User created successfully"}, nil
+	return &v1.NullReply{}, nil
 
 }

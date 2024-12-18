@@ -44,6 +44,10 @@ message Data {
 }
 
 message Auth {
-  string service_key = 1;
-  string api_key = 2;
+  message Jwt{
+    string secret = 1;
+    string algorithm = 2;
+    google.protobuf.Duration expire = 3;
+  }
+  Jwt jwt = 1;
 }

@@ -13,6 +13,8 @@ data:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s
     write_timeout: 0.2s
-Auth:
-  secret_key: 123456
-  api_key: 123456
+auth:
+  jwt:
+    secret:  "123456"
+    algorithm: "HS256"              # 签名算法
+    expire: 86400s              # 过期时间(一天）

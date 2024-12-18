@@ -3,7 +3,7 @@ syntax = "proto3";
 package user.v1;
 
 import "google/api/annotations.proto";
-
+import "validate/validate.proto";
 option go_package = "kratosTestApp/api/user/v1;v1";
 option java_multiple_files = true;
 option java_package = "dev.kratos.api.user.v1";
@@ -11,9 +11,15 @@ option java_outer_classname = "UserProtoV1";
 
 service User {
   // Handles user registration
-  rpc Register (RegisterRequest) returns (RegisterReply) {
+  rpc Register (RegisterRequest) returns (NullReply) {
     option (google.api.http) = {
       post: "/user/register"
+      body: "*"
+    };
+  }
+  rpc Login (LoginRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/user/login"
       body: "*"
     };
   }
@@ -22,6 +28,12 @@ service User {
       get: "/user/getAllUser"
     };
   }
+}
+message LoginRequest {
+  User_info user = 1;
+}
+message LoginReply {
+  string token = 1;
 }
 message NullRequest {
 }
@@ -33,10 +45,7 @@ message RegisterRequest {
 message User_info {
   string username = 1;
   string password = 2;
-  string email = 3;
-}
-message RegisterReply {
-  string message = 1;
+  string email = 3 [(validate.rules).string.email = true];
 }
 message GetAllUserReply {
   repeated User_info user = 1;

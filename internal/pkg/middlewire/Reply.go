@@ -1,4 +1,4 @@
-package self_middle
+package middlewire
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ func CustomResponseEncoder(w http.ResponseWriter, r *http.Request, v interface{}
 	// 设置响应头
 	w.Header().Set("Content-Type", "application/json")
 	resp := Response{
-		Code:    0,
+		Code:    200,
 		Message: "OK",
 		Data:    v, // 原始返回数据
 	}

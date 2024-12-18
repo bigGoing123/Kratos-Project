@@ -18,6 +18,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/user.v1.GetAllUserReply'
+    /user/login:
+        post:
+            tags:
+                - User
+            operationId: User_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.LoginReply'
     /user/register:
         post:
             tags:
@@ -36,7 +54,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/user.v1.RegisterReply'
+                                $ref: '#/components/schemas/user.v1.NullReply'
 components:
     schemas:
         user.v1.GetAllUserReply:
@@ -46,11 +64,19 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/user.v1.User_info'
-        user.v1.RegisterReply:
+        user.v1.LoginReply:
             type: object
             properties:
-                message:
+                token:
                     type: string
+        user.v1.LoginRequest:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/user.v1.User_info'
+        user.v1.NullReply:
+            type: object
+            properties: {}
         user.v1.RegisterRequest:
             type: object
             properties:
